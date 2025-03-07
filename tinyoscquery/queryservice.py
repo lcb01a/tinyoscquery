@@ -28,7 +28,7 @@ class OSCQueryService(object):
         self.host_info = OSCHostInfo(serverName, {"ACCESS":True,"CLIPMODE":False,"RANGE":True,"TYPE":True,"VALUE":True}, 
             self.oscIp, self.oscPort, "UDP")
 
-        self._zeroconf = Zeroconf()
+        self._zeroconf = Zeroconf(interfaces=[self.oscIp])
         self._startOSCQueryService()
         self._advertiseOSCService()
         self.http_server = OSCQueryHTTPServer(self.root_node, self.host_info, ('', self.httpPort), OSCQueryHTTPHandler)
@@ -55,7 +55,7 @@ class OSCQueryService(object):
     def _startOSCQueryService(self):
         oscqsDesc = {'txtvers': 1}
         oscqsInfo = ServiceInfo("_oscjson._tcp.local.", "%s._oscjson._tcp.local." % self.serverName, self.httpPort, 
-        0, 0, oscqsDesc, "%s.oscjson.local." % self.serverName, addresses=["127.0.0.1"])
+        0, 0, oscqsDesc, "%s.oscjson.local." % self.serverName, addresses=[self.oscIp])
         self._zeroconf.register_service(oscqsInfo)
 
 
@@ -65,7 +65,7 @@ class OSCQueryService(object):
     def _advertiseOSCService(self):
         oscDesc = {'txtvers': 1}
         oscInfo = ServiceInfo("_osc._udp.local.", "%s._osc._udp.local." % self.serverName, self.oscPort, 
-        0, 0, oscDesc, "%s.osc.local." % self.serverName, addresses=["127.0.0.1"])
+        0, 0, oscDesc, "%s.osc.local." % self.serverName, addresses=[self.oscIp])
 
         self._zeroconf.register_service(oscInfo)
 
